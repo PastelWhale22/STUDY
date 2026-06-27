@@ -1,0 +1,217 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+typedef struct {
+    char name[50];
+    int quantity;
+} Product;
+
+
+void sortProducts(Product products[], int size) {
+    int i, j;
+    Product temp;
+
+    for (i = 0; i < size - 1; i++) {
+        for (j = i + 1; j < size; j++) {
+            if (strcmp(products[i].name, products[j].name) > 0) {
+                temp = products[i];
+                products[i] = products[j];
+                products[j] = temp;
+            }
+        }
+    }
+}
+
+void dataVegetableK(Product products[], int size) {
+    sortProducts(products, size);
+
+    printf("\n====목록====\n");
+    printf("가나다 순으로 정렬된 농산물 목록:\n");
+
+    for (int i = 0; i < size; i++) {
+        printf("%s - 수량: %d\n", products[i].name, products[i].quantity);
+    }
+    printf("\n");
+} 
+
+void dataList(Product products[], int* allVegetable) {
+	while(1)
+	{
+		int choice;
+		printf("\n====목록====\n");
+        printf("1. 가나다 순 \n");
+        printf("2. 수량 순 \n");
+        printf("0. 뒤로가기 \n");
+        printf("선택: ");
+        scanf("%d", &choice);
+       
+         switch (choice)
+        {
+        case 0:
+            return;
+        case 1:
+            dataVegetableK(products, *allVegetable);
+            break;
+        case 2:
+            printf("수량 순\n");
+            break;
+        default:
+            printf("다시 선택해주세요.\n");
+            break;
+        }
+	}
+}
+
+void dataVegetable(Product products[], int* allVegetable) {
+    while (1)
+    {
+        int choice;
+        printf("\n====정보====\n");
+        printf("1. 목록 \n");
+        printf("2. 수정 \n");
+        printf("3. 저장 \n");
+        printf("0. 뒤로가기 \n");
+        printf("선택: ");
+        scanf("%d", &choice);
+
+        switch (choice)
+        {
+        case 0:
+            return;
+        case 1:
+            dataList(products, allVegetable);
+            break;
+        case 2:
+            printf("수정\n");
+            break;
+        case 3:
+           printf("저장 \n");
+           break;
+        default:
+            printf("유효하지 않은 선택입니다.\n");
+            break;
+        }
+    }
+}  //정보 함수
+
+void addVegetable(Product products[], int* allVegetable) {
+    printf("\n====입고====\n");
+
+    if (*allVegetable >= 100) {
+        printf("더 이상 농산물을 추가할 수 없습니다.\n");
+        return;
+    }
+
+    printf("농산물 이름: ");
+    scanf("%s", products[*allVegetable].name);
+
+    printf("농산물 수량: ");
+    scanf("%d", &products[*allVegetable].quantity);
+
+    (*allVegetable)++;
+
+    printf("농산물이 입고 되었습니다.\n");
+}  
+
+void Login() {  
+    printf("\n====로그인====\n");
+    printf("1. 관리자 \n");
+    printf("2. 구매자 \n");
+    printf("0. 종료   \n");
+    printf("선택: ");
+
+}   
+
+void Menu1(Product products[], int* allVegetable) {
+    while (1) {
+        int choice;
+        printf("\n====농산물 관리====\n");
+        printf("1. 입고 \n");
+        printf("2. 검색 \n");
+        printf("3. 정보 \n");
+        printf("0. 종료\n");
+        printf("선택:  ");
+        scanf("%d", &choice);
+
+        switch (choice) {
+        case 0:
+            printf("농산물 관리을 종료합니다.\n");
+            return;
+        case 1:
+            addVegetable(products, allVegetable);
+            break;
+        case 2:
+            printf("검색\n");
+            break;
+        case 3:
+            dataVegetable(products, allVegetable);
+            break;
+        default: 
+            printf("다시 선택해주세요.\n");
+            break;
+        }
+    }
+}
+
+void Menu2() {
+    while (1) {
+        int choice;
+        printf("\n====농산물 구매====\n");
+        printf("1. 주문\n");
+        printf("2. 주문 목록\n");
+        printf("3. 검색\n");
+        printf("4. 수정\n");
+        printf("0. 뒤로가기\n");
+        printf("선택: ");
+        scanf("%d", &choice);
+
+        switch (choice) {
+        case 0:
+            return;
+        case 1:
+            printf("주문\n");
+            break;
+        case 2:
+            printf("주문 목록\n");
+            break;
+        case 3:
+            printf("검색\n");
+            break;
+        case 4:
+            printf("수정\n");
+            break;
+        default:
+            printf("다시 선택 해주세요.\n");
+            break;
+        }
+    }
+}  //구매자 메뉴
+
+
+int main() {
+    int id;
+    Product products[100];
+    int allVegetable = 0;
+    while (1) {
+        Login();
+        scanf("%d", &id);
+
+        if (id == 1) {
+            Menu1(products, &allVegetable);
+        }
+        else if (id == 2) {
+            Menu2();
+        }
+        else if (id == 0) {
+            printf("종료되었습니다.");
+            break;
+        }
+        else {
+            printf("다시 선택해주세요. \n");
+            continue;
+        }
+    }
+    return 0;
+}

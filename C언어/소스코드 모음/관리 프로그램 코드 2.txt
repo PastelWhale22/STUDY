@@ -1,0 +1,482 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define MAX_ORDERS 100
+
+typedef struct {
+    int quantity;
+    char customerName[50];
+} OrderInfo;
+
+typedef struct {
+    char name[50];
+    int quantity;
+    char customerName[50];
+    OrderInfo order[MAX_ORDERS];
+    int orderCount;
+} Product;
+
+
+void initializeProduct(Product* product, int maxOrders) {
+    product->orderCount = 0;
+
+    for (int i = 0; i < maxOrders; i++) {
+        product->order[i].quantity = 0;
+        product->order[i].customerName[0] = '\0';
+    }
+}
+
+
+void freeProduct(Product* product) {
+    free(product->order);
+}
+
+void freeAllProducts(Product* products, int size) {
+    for (int i = 0; i < size; i++) {
+        freeProduct(&products[i]);
+    }
+    free(products);
+}
+
+void searchBuy(Product products[], int size) {
+    char buyName[50];
+    printf("구매자 이름을 입력하세요: ");
+    scanf("%s", buyName);
+    printf("\n====구매자 주문 내역====\n");
+    int find = 0;
+    for (int i = 0; i < size; i++) {
+        for (int j = 0; j < products[i].orderCount; j++) {
+            if (strcmp(products[i].order[j].customerName, buyName) == 0) {
+                printf("농산물: %s\n", products[i].name);
+                printf("주문 수량: %d, 주문자: %s\n", products[i].order[j].quantity, products[i].order[j].customerName);
+                find = 1;
+            }
+        }
+    }
+    if (!find) {
+        printf("일치하는 구매자의 주문 내역이 없습니다.\n");
+    }
+    printf("\n");
+}
+
+
+void dataVegetableN(Product products[], int size) {
+    int i, j;
+    Product temp;
+    for (i = 0; i < size - 1; i++) {
+        for (j = i + 1; j < size; j++) {
+            if (products[i].quantity < products[j].quantity) {
+                temp = products[i];
+                products[i] = products[j];
+                products[j] = temp;
+            }
+        }
+    }
+    printf("\n====목록====\n");
+    printf("수량 순으로 정렬된 농산물 목록:\n");
+
+    for (int i = 0; i < size; i++) {
+        printf("%s - 수량: %d\n", products[i].name, products[i].quantity);
+    }
+    printf("\n");
+}
+
+void dataVegetableK(Product products[], int size) {
+    int i, j;
+    Product temp;
+    for (i = 0; i < size - 1; i++) {
+        for (j = i + 1; j < size; j++) {
+            if (strcmp(products[i].name, products[j].name) > 0) {
+                temp = products[i];
+                products[i] = products[j];
+                products[j] = temp;
+            }
+        }
+    }
+    printf("\n====목록====\n");
+    printf("가나다 순으로 정렬된 농산물 목록:\n");
+    for (int i = 0; i < size; i++) {
+        printf("%s - 수량: %d\n", products[i].name, products[i].quantity);
+    }
+    printf("\n");
+}
+
+void orderHistory(Product products[], int size) {
+    printf("\n====주문 내역====\n");
+    int orderCount = 0;
+    for (int i = 0; i < size; i++) {
+        if (strlen(products[i].customerName) > 0) {
+            printf("농산물: %s\n", products[i].name);
+            for (int j = 0; j < products[i].orderCount; j++) {
+                printf("주문 수량: %d, 주문자: %s\n", products[i].order[j].quantity, products[i].order[j].customerName);
+            }
+	        orderCount++;
+        }
+    }
+    if (orderCount == 0) {
+        printf("주문 내역이 없습니다.\n");
+    }
+    printf("\n");
+}
+
+void dataList(Product products[], int* allVegetable) {
+    while (1)
+    {
+        int choice;
+        printf("\n====목록====\n");
+        printf("1. 가나다 순 \n");
+        printf("2. 수량 순 \n");
+        printf("3. 구매 순 \n");
+        printf("0. 뒤로가기 \n");
+        printf("선택: ");
+        scanf("%d", &choice);
+		switch (choice)
+        {
+        case 0:
+            return;
+        case 1:
+            dataVegetableK(products, *allVegetable);
+            break;
+        case 2:
+            dataVegetableN(products, *allVegetable);
+            break;
+        case 3:
+            orderHistory(products, *allVegetable);
+            break;
+        default:
+            printf("유효하지 않은 선택입니다.\n");
+            break;
+        }
+    }
+}
+
+void dataChange(Product products[], int allVegetable) {
+    int choice;
+	printf("\n");
+    printf("====농산물 목록====\n");
+    for (int i = 0; i < allVegetable; i++) {
+        printf("%d. %s - 수량: %d\n", i + 1, products[i].name, products[i].quantity);
+    }
+    printf("농산물 번호를 입력하세요 (0은 뒤로가기): ");
+    scanf("%d", &choice);
+    if (choice == 0) {
+        return;
+    }
+    int num = choice - 1;
+    if (num < 0 || num >= allVegetable) {
+        printf("다시 선택해주세요.\n");
+        return;
+    }
+    printf("\n");
+    printf("정보를 변경할 항목을 선택하세요\n");
+    printf("1. 이름 변경\n");
+    printf("2. 수량 변경\n");
+    printf("0. 뒤로가기\n");
+    printf("선택: ");
+    scanf("%d", &choice);
+    
+    switch (choice) {
+    case 0:
+        return;
+    case 1:
+        printf("새로운 이름을 입력하세요: ");
+        scanf("%s", products[num].name);
+        printf("농산물 이름이 성공적으로 변경되었습니다.\n");
+        break;
+    case 2:
+        printf("새로운 수량을 입력하세요: ");
+        scanf("%d", &products[num].quantity);
+        printf("농산물 수량이 성공적으로 변경되었습니다.\n");
+        break;
+    default:
+        printf("유효하지 않은 선택입니다.\n");
+        break;
+    }
+}
+
+
+void dataVegetable(Product products[], int* allVegetable) {
+    while (1)
+    {
+        int choice;
+        printf("\n====정보====\n");
+        printf("1. 목록 \n");
+        printf("2. 수정 \n");
+        printf("3. 저장 \n");
+        printf("0. 뒤로가기 \n");
+        printf("선택: ");
+        scanf("%d", &choice);
+
+        switch (choice)
+        {
+        case 0:
+            return;
+        case 1:
+            dataList(products, allVegetable);
+            break;
+        case 2:
+            dataChange(products, *allVegetable);
+            break;
+        case 3:
+            printf("저장 \n");
+            break;
+        default:
+            printf("유효하지 않은 선택입니다.\n");
+            break;
+        }
+    }
+}
+
+
+void addVegetable(Product products[], int* allVegetable) {
+    printf("\n====입고====\n");
+    if (*allVegetable >= 100) {
+        printf("더 이상 농산물을 추가할 수 없습니다.\n");
+        return;
+    }
+    printf("농산물 이름: ");
+    char newName[50];
+    scanf("%s", newName);
+    for (int i = 0; i < *allVegetable; i++) {
+        if (strcmp(products[i].name, newName) == 0) {
+            printf("농산물 수량: ");
+            int plusVT;
+            scanf("%d", &plusVT);
+            products[i].quantity += plusVT;
+            printf("기존 농산물에 수량이 추가되었습니다.\n");
+            return;
+        }
+    }
+    strcpy(products[*allVegetable].name, newName);
+    initializeProduct(&products[*allVegetable], MAX_ORDERS);
+    printf("농산물 수량: ");
+    scanf("%d", &products[*allVegetable].quantity);
+    (*allVegetable)++;
+    printf("농산물이 성공적으로 입고되었습니다.\n");
+}
+
+void searchVT(Product products[], int size) {
+    char searchName[50];
+    printf("농산물 이름을 입력하세요: ");
+    scanf("%s", searchName);
+    int num = -1;
+    for (int i = 0; i < size; i++) {
+        if (strcmp(products[i].name, searchName) == 0) {
+            num = i;
+            break;
+        }
+    }
+    if (num == -1) {
+        printf("일치하는 농산물이 없습니다.\n");
+    }
+    else {
+        printf("\n====재고 정보====\n");
+        printf("농산물 이름: %s\n", products[num].name);
+        printf("수량: %d\n", products[num].quantity);
+        printf("\n");
+    }
+}
+
+void dataSearch(Product products[], int* allVegetable) {
+    while (1) {
+        int choice;
+        printf("\n====검색====\n");
+        printf("1. 재고 \n");
+        printf("2. 구매자 \n");
+        printf("0. 뒤로가기 \n");
+        printf("선택: ");
+        scanf("%d", &choice);
+
+        switch (choice)
+        {
+        case 0:
+            return;
+        case 1:
+            searchVT(products, *allVegetable);
+            break;
+        case 2:
+            searchBuy(products, *allVegetable);
+            break;
+        default:
+            printf("다시 선택해주세요.\n");
+            break;
+        }
+    }
+
+}
+void buyInfo() {
+    while (1) {
+        int choice;
+        printf("\n====정보====\n");
+        printf("1. 주문 목록 \n");
+        printf("2. 수정 \n");
+        printf("0. 뒤로가기 \n");
+        printf("선택: ");
+        scanf("%d", &choice);
+
+        switch (choice)
+        {
+        case 0:
+            return;
+        case 1:
+            printf("주문 목록 \n");
+            break;
+        case 2:
+            printf("수정 \n");
+            break;
+        default:
+            printf("다시 선택해주세요.\n");
+            break;
+        }
+    }
+}
+
+void addOrder(Product products[], int size) {
+    printf("\n====주문====\n");
+
+    char orderName[50];
+    printf("주문할 농산물 이름을 입력하세요: ");
+    if (scanf("%s", orderName) != 1) {
+        printf("잘못된 입력입니다.\n");
+        return;
+    }
+    int find= -1;
+    for (int i = 0; i < size; i++) {
+        if (strcmp(products[i].name, orderName) == 0) {
+            find= i;
+            break;
+        }
+    }
+    if (find== -1) {
+        printf("입력한 농산물이 존재하지 않습니다.\n");
+        return; 
+    }
+    int quantityO;
+    printf("주문할 수량을 입력하세요: ");
+    if (scanf("%d", &quantityO) != 1 || quantityO <= 0) {
+        printf("유효하지 않은 수량입니다.\n");
+        return; 
+    }
+    if (quantityO <= products[find].quantity) {
+        products[find].quantity -= quantityO;
+        printf("주문자의 이름을 입력하세요: ");
+        if (scanf("%s", products[find].customerName) != 1) {
+            printf("잘못된 입력입니다.\n");
+            return;
+        }
+        printf("%d개의 %s를 주문했습니다. 주문자: %s\n", quantityO, orderName, products[find].customerName);
+        if (products[find].orderCount < MAX_ORDERS) {
+            products[find].order[products[find].orderCount].quantity = quantityO;
+            strcpy(products[find].order[products[find].orderCount].customerName, products[find].customerName);
+            products[find].orderCount++;
+        }
+        else {
+            printf("더 이상 주문을 추가할 수 없습니다. 주문 내역이 꽉 찼습니다.\n");
+        }
+    }
+    else {
+        printf("재고가 부족합니다. 현재 재고: %d\n", products[find].quantity);
+    }
+}
+
+void Login() {
+    printf("\n====로그인====\n");
+    printf("1. 관리자 \n");
+    printf("2. 구매자 \n");
+    printf("0. 종료   \n");
+    printf("선택: ");
+
+}
+
+void Menu1(Product products[], int* allVegetable) {
+    while (1) {
+        int choice;
+        printf("\n====농산물 관리====\n");
+        printf("1. 입고 \n");
+        printf("2. 검색 \n");
+        printf("3. 정보 \n");
+        printf("0. 종료\n");
+        printf("선택:  ");
+        scanf("%d", &choice);
+
+        switch (choice) {
+        case 0:
+            printf("농산물 관리을 종료합니다.\n");
+            return;
+        case 1:
+            addVegetable(products, allVegetable);
+            break;
+        case 2:
+            dataSearch(products, allVegetable);
+            break;
+        case 3:
+            dataVegetable(products, allVegetable);
+            break;
+        default:
+            printf("유효하지 않은 선택입니다.\n");
+            break;
+        }
+    }
+}
+
+void Menu2(Product products[], int* allVegetable) {
+    while (1) {
+        int choice;
+        printf("\n====농산물 구매====\n");
+        printf("1. 주문 \n");
+        printf("2. 정보 \n");
+        printf("3. 검색 \n");
+        printf("0. 뒤로가기\n");
+        printf("선택: ");
+        scanf("%d", &choice);
+
+        switch (choice) {
+        case 0:
+            return;
+        case 1:
+            addOrder(products, *allVegetable);
+            break;
+        case 2:
+            buyInfo();
+            break;
+        case 3:
+            searchVT(products, *allVegetable);
+            break;
+        default:
+            printf("유효하지 않은 선택입니다.\n");
+            break;
+        }
+    }
+} 
+
+int main() {
+    int id;
+    int allVegetable = 0;
+    int initialSize = 100;
+    Product* products = (Product*)malloc(initialSize * sizeof(Product));
+
+    while (1) {
+        Login();
+        scanf("%d", &id);
+
+        if (id == 1) {
+            Menu1(products, &allVegetable);
+        }
+        else if (id == 2) {
+            Menu2(products, &allVegetable);
+        }
+        else if (id == 0) {
+            printf("종료되었습니다.");
+            break;
+        }
+        else {
+            printf("다시 선택해주세요. \n");
+            continue;
+        }
+    }
+    freeAllProducts(products, allVegetable);
+
+    return 0;
+}
